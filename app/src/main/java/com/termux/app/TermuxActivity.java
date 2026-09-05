@@ -490,6 +490,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalView = findViewById(R.id.terminal_view);
         mTerminalView.setTerminalViewClient(mTermuxTerminalViewClient);
 
+        // Three-finger swipe down toggles the soft keyboard. Returns false so normal touch
+        // handling (scroll, selection, zoom, mouse reporting) is unaffected.
+        mTerminalView.setOnTouchListener(new TermuxThreeFingerSwipeDetector(this,
+            () -> mTermuxTerminalViewClient.onToggleSoftKeyboardRequest()));
+
         if (mTermuxTerminalViewClient != null)
             mTermuxTerminalViewClient.onCreate();
 
