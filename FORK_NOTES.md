@@ -3,8 +3,10 @@
 A minimal fork of [termux/termux-app](https://github.com/termux/termux-app) that adds
 one feature:
 
-> **Swipe down with three fingers anywhere on the terminal to toggle the on-screen
+> **Swipe up with three fingers anywhere on the terminal to toggle the on-screen
 > keyboard on/off.**
+
+(Swipe-*down* is avoided because it is commonly the system "take screenshot" gesture.)
 
 Because the toggle happens inside Termux itself at the app layer, it works in every
 TUI running inside the terminal (vim, tmux, pi, htop, ...) — there is no dependency
@@ -14,7 +16,7 @@ on any particular TUI.
 
 | File | Change |
 | --- | --- |
-| `app/src/main/java/com/termux/app/TermuxThreeFingerSwipeDetector.java` | New. Detects a three-finger downward swipe (threshold ~120 dp of average pointer travel) and reports it via a listener. Attached with `View.OnTouchListener`, it always returns `false`, so normal terminal touch handling (scroll, text selection, pinch-zoom, mouse reporting, extra keys) is completely unaffected. |
+| `app/src/main/java/com/termux/app/TermuxThreeFingerSwipeDetector.java` | New. Detects a three-finger upward swipe (threshold ~120 dp of average pointer travel) and reports it via a listener. Attached with `View.OnTouchListener`, it always returns `false`, so normal terminal touch handling (scroll, text selection, pinch-zoom, mouse reporting, extra keys) is completely unaffected. |
 | `app/src/main/java/com/termux/app/TermuxActivity.java` | Wires the detector to the terminal view in `setTermuxTerminalViewAndClients()`. The gesture calls the existing `TermuxTerminalViewClient.onToggleSoftKeyboardRequest()`, which honours `soft-keyboard-toggle-behaviour` from `~/.termux/termux.properties` (default: show/hide; set it to `enable/disable` for that mode). |
 
 ## Building

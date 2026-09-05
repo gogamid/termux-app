@@ -5,8 +5,11 @@ import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Detects a three-finger downward swipe on the terminal view and reports it to a listener
+ * Detects a three-finger upward swipe on the terminal view and reports it to a listener
  * (which toggles the soft keyboard).
+ *
+ * <p>Note: three-finger swipe-DOWN commonly maps to the system "take screenshot" gesture on
+ * many devices, so this detector only reacts to upward swipes.</p>
  *
  * <p>Attached as an {@link View.OnTouchListener} on the {@code TerminalView}. It always returns
  * {@code false} so that the terminal's own touch handling (scroll, selection, zoom, mouse
@@ -16,23 +19,23 @@ import android.view.View;
  */
 public final class TermuxThreeFingerSwipeDetector implements View.OnTouchListener {
 
-    /** Listener notified once per three-finger swipe-down gesture. */
-    public interface OnThreeFingerSwipeDownListener {
-        void onThreeFingerSwipeDown();
+    /** Listener notified once per three-finger swipe-up gesture. */
+    public interface OnThreeFingerSwipeUpListener {
+        void onThreeFingerSwipeUp();
     }
 
     private static final int MIN_POINTERS = 3;
-    /** Total downward travel (of the average pointer Y) required to trigger the gesture. */
+    /** Total upward travel (of the average pointer Y) required to trigger the gesture. */
     private static final float SWIPE_THRESHOLD_DP = 120f;
 
     private final float mSwipeThresholdPx;
-    private final OnThreeFingerSwipeDownListener mListener;
+    private final OnThreeFingerSwipeUpListener mListener;
 
     private boolean mTracking;
     private float mLastAverageY;
     private float mAccumulatedDy;
 
-    public TermuxThreeFingerSwipeDetector(Context context, OnThreeFingerSwipeDownListener listener) {
+    public TermuxThreeFingerSwipeDetector(Context context, OnThreeFingerSwipeUpListener listener) {
         mSwipeThresholdPx = SWIPE_THRESHOLD_DP * context.getResources().getDisplayMetrics().density;
         mListener = listener;
     }
@@ -58,12 +61,12 @@ public final class TermuxThreeFingerSwipeDetector implements View.OnTouchListene
                     float averageY = getAverageY(event);
                     float dy = averageY - mLastAverageY;
                     mLastAverageY = averageY;
-                    if (dy > 0f) { // only accumulate downward movement
-                        mAccumulatedDy += dy;
+                    if (dy < 0f) { // only accumulate upward movement (finger Y decreases)
+                        mAccumulatedDy += -dy;
                         if (mAccumulatedDy >= mSwipeThresholdPx) {
                             mTracking = false;
                             mAccumulatedDy = 0f;
-                            mListener.onThreeFingerSwipeDown();
+                            mListener.onThreeFingerSwipeUp();
                         }
                     }
                 }
